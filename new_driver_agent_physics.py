@@ -91,7 +91,7 @@ class driver_agent_physics(Env):
                 self.reward = self.collision_reward
             else:
                 # Add safety penalty based on distance - closer distance means higher penalty
-                distance_penalty = (self.max_distance / max(self.distance_at_go, 1)) * self.safety_distance_weight * 0.2
+                distance_penalty = self.safety_distance_weight * max(0, self.safe_distance - self.distance_at_go)
                 self.reward = self.goal_reward - self.penalty_per_tick * self.ticks - distance_penalty
 
         self.belief = self.get_belief()
