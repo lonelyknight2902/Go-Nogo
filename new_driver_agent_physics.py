@@ -8,11 +8,14 @@ import numpy as np
 import math
 
 class driver_agent_physics(Env):
-    def __init__(self, physics_env, goal_reward = 10, collision_reward = -10, observation_var = 0):
+    def __init__(self, physics_env, goal_reward = 10, collision_reward = -10, safety_distance_weight = 0, observation_var = 0):
         self.env = physics_env
 
         self.goal_reward = goal_reward
         self.collision_reward = collision_reward
+        self.safety_distance_weight = safety_distance_weight
+
+        self.safe_distance = 10
 
         self.max_ticks = 256
         self.max_distance = 80
@@ -88,7 +91,10 @@ class driver_agent_physics(Env):
                 self.reward = self.collision_reward
             else:
                 # Add safety penalty based on distance - closer distance means higher penalty
-                distance_penalty = (self.max_distance / max(self.distance_at_go, 1)) * self.goal_reward * 0.1
+                if self.distance_at_go < self.safe_distance:
+                    distance_penalty = (self.max_distance / max(self.distance_at_go, 1)) * self.safety_distance_weight * 0.2
+                else:
+                    distance_penalty = 0
                 self.reward = self.goal_reward - self.penalty_per_tick * self.ticks - distance_penalty
 
         self.belief = self.get_belief()
